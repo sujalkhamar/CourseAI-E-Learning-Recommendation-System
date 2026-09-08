@@ -1,0 +1,223 @@
+{% extends 'recommender/base.html' %}
+{% block title %}CourseAI – AI-Powered Course Recommendations{% endblock %}
+
+{% block extra_head %}
+<style>
+  .hero {
+    text-align: center;
+    padding: 5rem 2rem 3rem;
+    background: radial-gradient(ellipse at top, rgba(99,102,241,0.12) 0%, transparent 70%);
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.5rem);
+    font-weight: 800; line-height: 1.15;
+    margin-bottom: 1.2rem;
+  }
+  .hero h1 span {
+    background: linear-gradient(135deg, #6366f1, #a78bfa);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .hero p {
+    font-size: 1.1rem; color: var(--text-muted);
+    max-width: 580px; margin: 0 auto 2.5rem; line-height: 1.7;
+  }
+  .stats-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+    gap: 1.2rem; margin: 2.5rem 0;
+  }
+  .stat-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem; text-align: center;
+  }
+  .stat-num { font-size: 2rem; font-weight: 800; color: var(--primary-light); }
+  .stat-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.25rem; }
+
+  .quick-form {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: 18px; padding: 2rem; max-width: 700px; margin: 0 auto;
+  }
+  .quick-form h2 { font-size: 1.3rem; font-weight: 700; margin-bottom: 1.2rem; }
+  .form-group { margin-bottom: 1rem; }
+  .form-group label { display: block; font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.4rem; font-weight: 500; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 0.7rem 1rem; border-radius: 10px;
+    font-size: 0.95rem; outline: none; transition: border-color 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+  .skill-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+
+  .how-it-works {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1.5rem; margin-top: 3rem;
+  }
+  .step-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+  }
+  .step-icon { font-size: 2rem; margin-bottom: 0.75rem; }
+  .step-title { font-weight: 700; margin-bottom: 0.4rem; }
+  .step-desc { font-size: 0.85rem; color: var(--text-muted); line-height: 1.6; }
+
+  #skill-suggestions {
+    position: absolute; background: var(--bg2);
+    border: 1px solid var(--border); border-radius: 10px;
+    max-height: 200px; overflow-y: auto; z-index: 200;
+    width: 100%; top: calc(100% + 4px);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+  }
+  #skill-suggestions div {
+    padding: 0.55rem 1rem; cursor: pointer; font-size: 0.9rem;
+    transition: background 0.15s;
+  }
+  #skill-suggestions div:hover { background: var(--bg3); }
+  .input-wrap { position: relative; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="hero">
+  <h1>Find Your Perfect<br><span>Learning Path</span></h1>
+  <p>Enter your skills and get AI-powered course recommendations from <strong>{{ stats.total_courses }}+</strong> Coursera courses using TF-IDF and Cosine Similarity.</p>
+</div>
+
+<div class="container">
+  <!-- Stats -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.total_courses }}</div>
+      <div class="stat-label">Total Courses</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.total_universities }}</div>
+      <div class="stat-label">Universities</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">{{ stats.avg_rating }}</div>
+      <div class="stat-label">Avg Rating / 5</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num">TF-IDF</div>
+      <div class="stat-label">AI Algorithm</div>
+    </div>
+  </div>
+
+  <!-- Quick Recommend Form -->
+  <div class="quick-form fade-up">
+    <h2>🤖 Get Personalized Recommendations</h2>
+    <form action="/recommend/" method="POST">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Your Skills (comma-separated)</label>
+        <div class="input-wrap">
+          <input type="text" name="skills" id="skills-input" placeholder="e.g. python, machine learning, data science" required autocomplete="off">
+          <div id="skill-suggestions" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group">
+          <label>Preferred Difficulty</label>
+          <select name="difficulty">
+            <option value="All">All Levels</option>
+            {% for level in difficulty_levels %}
+            <option value="{{ level }}">{{ level }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Number of Results</label>
+          <select name="top_n">
+            <option value="5">5 courses</option>
+            <option value="10" selected>10 courses</option>
+            <option value="15">15 courses</option>
+            <option value="20">20 courses</option>
+          </select>
+        </div>
+      </div>
+      <div style="margin-bottom:1rem;">
+        <p style="font-size:0.82rem;color:var(--text-muted);margin-bottom:0.5rem;">Popular skills (click to add):</p>
+        <div class="skill-tags" id="popular-tags">
+          {% for skill in popular_skills|slice:":20" %}
+          <span class="tag" onclick="addSkill('{{ skill }}')">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:0.85rem;">
+        🚀 Get Recommendations
+      </button>
+    </form>
+  </div>
+
+  <!-- How It Works -->
+  <h2 style="margin-top:3.5rem;font-size:1.5rem;font-weight:700;text-align:center;">How It Works</h2>
+  <div class="how-it-works">
+    <div class="step-card">
+      <div class="step-icon">📝</div>
+      <div class="step-title">1. Enter Your Skills</div>
+      <div class="step-desc">Type skills you already have or want to build on — like Python, Data Science, or Machine Learning.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">🧠</div>
+      <div class="step-title">2. AI Processes</div>
+      <div class="step-desc">TF-IDF vectorizes your input and computes cosine similarity across 3,500+ courses.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">⚖️</div>
+      <div class="step-title">3. Smart Scoring</div>
+      <div class="step-desc">Final score = 50% similarity + 30% rating + 20% difficulty match for optimal results.</div>
+    </div>
+    <div class="step-card">
+      <div class="step-icon">🎯</div>
+      <div class="step-title">4. Get Results</div>
+      <div class="step-desc">Ranked course recommendations with ratings, difficulty levels, and direct Coursera links.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+function addSkill(skill) {
+  const input = document.getElementById('skills-input');
+  const current = input.value.trim();
+  if (!current) { input.value = skill; }
+  else {
+    const skills = current.split(',').map(s => s.trim());
+    if (!skills.includes(skill)) { input.value = current + ', ' + skill; }
+  }
+}
+
+const inp = document.getElementById('skills-input');
+const sug = document.getElementById('skill-suggestions');
+let debounce;
+
+inp.addEventListener('input', () => {
+  clearTimeout(debounce);
+  debounce = setTimeout(() => {
+    const parts = inp.value.split(',');
+    const last = parts[parts.length - 1].trim();
+    if (last.length < 2) { sug.style.display = 'none'; return; }
+    fetch('/api/skills/?q=' + encodeURIComponent(last))
+      .then(r => r.json())
+      .then(data => {
+        if (!data.skills.length) { sug.style.display = 'none'; return; }
+        sug.innerHTML = data.skills.map(s =>
+          `<div onclick="selectSuggestion('${s}')">${s}</div>`
+        ).join('');
+        sug.style.display = 'block';
+      });
+  }, 250);
+});
+
+function selectSuggestion(skill) {
+  const parts = inp.value.split(',');
+  parts[parts.length - 1] = ' ' + skill;
+  inp.value = parts.join(',').trim();
+  sug.style.display = 'none';
+  inp.focus();
+}
+
+document.addEventListener('click', e => {
+  if (!inp.contains(e.target) && !sug.contains(e.target)) sug.style.display = 'none';
+});
+</script>
+{% endblock %}

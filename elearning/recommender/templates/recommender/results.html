@@ -1,0 +1,182 @@
+{% extends 'recommender/base.html' %}
+{% block title %}Recommendations – CourseAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  .results-header {
+    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+    border: 1px solid var(--border); border-radius: 18px;
+    padding: 2rem; margin-bottom: 2rem;
+  }
+  .results-header h1 { font-size: 1.8rem; font-weight: 800; }
+  .results-header p { color: var(--text-muted); margin-top: 0.4rem; }
+  .skills-list { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-top: 0.8rem; }
+
+  .course-grid { display: grid; gap: 1.2rem; }
+  .course-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.4rem;
+    transition: border-color 0.2s, transform 0.2s;
+    animation: fadeUp 0.3s ease forwards;
+  }
+  .course-card:hover { border-color: var(--primary); transform: translateY(-2px); }
+  .course-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; }
+  .course-name {
+    font-size: 1rem; font-weight: 700; color: var(--text);
+    line-height: 1.4; margin-bottom: 0.3rem;
+  }
+  .course-uni { font-size: 0.82rem; color: var(--text-muted); }
+  .course-meta { display: flex; align-items: center; gap: 0.8rem; flex-wrap: wrap; margin-top: 0.8rem; }
+  .score-bar-wrap { margin-top: 0.8rem; }
+  .score-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.3rem; }
+  .score-bar {
+    height: 5px; background: var(--bg3); border-radius: 999px; overflow: hidden;
+  }
+  .score-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--primary), var(--accent2));
+    border-radius: 999px; transition: width 0.6s ease;
+  }
+  .course-skills { margin-top: 0.8rem; }
+  .course-skills-label { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 0.35rem; }
+  .skill-pills { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .skill-pill {
+    font-size: 0.7rem; padding: 0.15rem 0.5rem;
+    background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);
+    border-radius: 999px; color: var(--primary-light);
+  }
+  .rank-badge {
+    min-width: 2rem; height: 2rem; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.75rem; font-weight: 800; color: white; flex-shrink: 0;
+  }
+  .chart-section { margin: 2rem 0; }
+  .chart-img { width: 100%; border-radius: 12px; border: 1px solid var(--border); }
+  .back-form { margin-top: 2rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 1rem; align-items: flex-end; }
+  .form-group label { font-size: 0.82rem; color: var(--text-muted); display: block; margin-bottom: 0.35rem; }
+  .form-group input, .form-group select {
+    width: 100%; background: var(--bg2); border: 1px solid var(--border);
+    color: var(--text); padding: 0.65rem 1rem; border-radius: 10px; font-size: 0.9rem; outline: none;
+  }
+  .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;">
+  <div class="results-header fade-up">
+    <h1>🎯 {{ count }} Course{% if count != 1 %}s{% endif %} Found</h1>
+    <p>Based on your skills &bull; Difficulty: <strong>{{ difficulty }}</strong></p>
+    <div class="skills-list">
+      {% for skill in user_skills %}
+      <span class="badge" style="background:rgba(99,102,241,0.15);color:#818cf8;">{{ skill }}</span>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Try Again Form -->
+  <div class="card back-form">
+    <form action="/recommend/" method="POST">
+      {% csrf_token %}
+      <div class="form-row">
+        <div class="form-group">
+          <label>Your Skills</label>
+          <input type="text" name="skills" value="{{ user_skills|join:', ' }}" required>
+        </div>
+        <div class="form-group">
+          <label>Difficulty</label>
+          <select name="difficulty">
+            <option value="All" {% if difficulty == 'All' %}selected{% endif %}>All Levels</option>
+            {% for level in difficulty_levels %}
+            <option value="{{ level }}" {% if difficulty == level %}selected{% endif %}>{{ level }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="form-group">
+          <button type="submit" class="btn btn-primary">🔄 Refresh</button>
+        </div>
+      </div>
+    </form>
+  </div>
+
+  {% if chart %}
+  <div class="chart-section card">
+    <h3 style="margin-bottom:1rem;font-size:1rem;font-weight:700;">📊 Recommendation Score Chart</h3>
+    <img src="data:image/png;base64,{{ chart }}" class="chart-img" alt="Score Chart">
+  </div>
+  {% endif %}
+
+  {% if recommendations %}
+  <div class="course-grid" style="margin-top:1.5rem;">
+    {% for course in recommendations %}
+    <div class="course-card" style="animation-delay: {{ forloop.counter0 }}00ms">
+      <div class="course-top">
+        <div style="flex:1;">
+          <div class="course-name">{{ course.course_name }}</div>
+          <div class="course-uni">🏛 {{ course.university }}</div>
+        </div>
+        <div class="rank-badge">#{{ forloop.counter }}</div>
+      </div>
+
+      <div class="course-meta">
+        {% if course.difficulty == 'Beginner' %}
+          <span class="badge badge-beginner">{{ course.difficulty }}</span>
+        {% elif course.difficulty == 'Intermediate' %}
+          <span class="badge badge-intermediate">{{ course.difficulty }}</span>
+        {% elif course.difficulty == 'Advanced' %}
+          <span class="badge badge-advanced">{{ course.difficulty }}</span>
+        {% else %}
+          <span class="badge badge-mixed">{{ course.difficulty }}</span>
+        {% endif %}
+        <span class="stars">★ {{ course.rating|floatformat:1 }}</span>
+        <span class="rating-num">Similarity: {{ course.cosine_similarity|floatformat:3 }}</span>
+        <a href="{{ course.url }}" target="_blank" class="btn btn-outline" style="padding:0.3rem 0.9rem;font-size:0.8rem;">
+          View on Coursera ↗
+        </a>
+      </div>
+
+      <div class="score-bar-wrap">
+        <div class="score-label">Final Score: {{ course.final_score|floatformat:3 }}</div>
+        <div class="score-bar">
+          <div class="score-fill" data-score="{{ course.final_score|floatformat:4 }}" style="width:0%"></div>
+        </div>
+      </div>
+
+      {% if course.skills %}
+      <div class="course-skills">
+        <div class="course-skills-label">Related Skills</div>
+        <div class="skill-pills">
+          {% for skill in course.skills.split|slice:":8" %}
+          <span class="skill-pill">{{ skill }}</span>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+    {% endfor %}
+  </div>
+
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">🔍</div>
+    <h3>No courses found</h3>
+    <p style="color:var(--text-muted);margin-top:0.5rem;">Try different skills or change the difficulty level.</p>
+  </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:2rem;">
+    <a href="/" class="btn btn-outline">← Back to Home</a>
+    <a href="/explore/" class="btn btn-outline" style="margin-left:0.5rem;">Browse All Courses</a>
+  </div>
+</div>
+
+<script>
+window.addEventListener('load', () => {
+  document.querySelectorAll('.score-fill').forEach(el => {
+    el.style.width = (parseFloat(el.dataset.score) * 100) + '%';
+  });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,100 @@
+{% extends 'recommender/base.html' %}
+{% block title %}Explore Courses – CourseAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  .filter-bar {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem 1.5rem;
+    display: flex; gap: 1rem; align-items: flex-end; flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+  }
+  .filter-group { display: flex; flex-direction: column; gap: 0.35rem; flex:1; min-width: 150px; }
+  .filter-group label { font-size: 0.78rem; color: var(--text-muted); font-weight: 500; }
+  .filter-group input, .filter-group select {
+    background: var(--bg3); border: 1px solid var(--border);
+    color: var(--text); padding: 0.6rem 0.9rem; border-radius: 9px; font-size: 0.9rem; outline: none;
+  }
+  .filter-group input:focus, .filter-group select:focus { border-color: var(--primary); }
+  .courses-list { display: grid; gap: 1rem; }
+  .course-row {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.2rem 1.4rem;
+    display: grid; grid-template-columns: 1fr auto;
+    gap: 1rem; align-items: center;
+    transition: border-color 0.2s;
+  }
+  .course-row:hover { border-color: var(--primary); }
+  .cr-name { font-weight: 700; font-size: 0.95rem; margin-bottom: 0.25rem; }
+  .cr-meta { display: flex; gap: 0.7rem; flex-wrap: wrap; align-items: center; margin-top: 0.5rem; }
+  .cr-uni { font-size: 0.8rem; color: var(--text-muted); }
+  .results-count { color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;">
+  <h1 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">🔍 Explore Courses</h1>
+  <p style="color:var(--text-muted);margin-bottom:1.5rem;">Browse all {{ total }} Coursera courses in the dataset.</p>
+
+  <form method="GET" action="/explore/">
+    <div class="filter-bar">
+      <div class="filter-group" style="flex:2;">
+        <label>Search by name, university, or skill</label>
+        <input type="text" name="search" value="{{ search }}" placeholder="e.g. machine learning, Python, Stanford…">
+      </div>
+      <div class="filter-group">
+        <label>Difficulty</label>
+        <select name="difficulty">
+          <option value="All" {% if selected_difficulty == 'All' %}selected{% endif %}>All Levels</option>
+          {% for level in difficulty_levels %}
+          <option value="{{ level }}" {% if selected_difficulty == level %}selected{% endif %}>{{ level }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>Sort by</label>
+        <select name="sort">
+          <option value="rating" {% if sort == 'rating' %}selected{% endif %}>Highest Rating</option>
+          <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option>
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Filter</button>
+    </div>
+  </form>
+
+  <p class="results-count">Showing top 50 of <strong>{{ total }}</strong> matching courses</p>
+
+  <div class="courses-list">
+    {% for course in courses %}
+    <div class="course-row">
+      <div>
+        <div class="cr-name">{{ course.course_name }}</div>
+        <div class="cr-uni">🏛 {{ course.university }}</div>
+        <div class="cr-meta">
+          {% if course.difficulty == 'Beginner' %}
+            <span class="badge badge-beginner">{{ course.difficulty }}</span>
+          {% elif course.difficulty == 'Intermediate' %}
+            <span class="badge badge-intermediate">{{ course.difficulty }}</span>
+          {% elif course.difficulty == 'Advanced' %}
+            <span class="badge badge-advanced">{{ course.difficulty }}</span>
+          {% else %}
+            <span class="badge badge-mixed">{{ course.difficulty }}</span>
+          {% endif %}
+          <span class="stars">★ {{ course.rating|floatformat:1 }}</span>
+        </div>
+      </div>
+      <a href="{{ course.url }}" target="_blank" class="btn btn-outline" style="white-space:nowrap;font-size:0.82rem;">
+        View Course ↗
+      </a>
+    </div>
+    {% empty %}
+    <div class="card" style="text-align:center;padding:3rem;">
+      <div style="font-size:3rem;">🔍</div>
+      <h3 style="margin-top:1rem;">No courses found</h3>
+      <p style="color:var(--text-muted);">Try adjusting your filters.</p>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,96 @@
+{% extends 'recommender/base.html' %}
+{% block title %}Analytics – CourseAI{% endblock %}
+
+{% block extra_head %}
+<style>
+  .analytics-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+    gap: 1.5rem; margin-top: 2rem;
+  }
+  .chart-card {
+    background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 1.5rem;
+  }
+  .chart-card h3 { font-size: 1rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-muted); }
+  .chart-img { width: 100%; border-radius: 10px; }
+  .stats-big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+  .stat-big { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
+  .stat-big-num { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-big-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.3rem; }
+  .diff-breakdown { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
+  .diff-row { display: flex; align-items: center; gap: 0.8rem; }
+  .diff-row-label { width: 110px; font-size: 0.85rem; }
+  .diff-row-bar { flex:1; height: 8px; background: var(--bg3); border-radius: 999px; overflow:hidden; }
+  .diff-row-fill { height: 100%; border-radius: 999px; }
+  .diff-row-count { font-size: 0.8rem; color: var(--text-muted); width: 40px; text-align: right; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;">
+  <h1 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">📊 Dataset Analytics</h1>
+  <p style="color:var(--text-muted);">Insights from the Coursera dataset of {{ stats.total_courses }} courses.</p>
+
+  <div class="stats-big" style="margin-top:2rem;">
+    <div class="stat-big">
+      <div class="stat-big-num">{{ stats.total_courses }}</div>
+      <div class="stat-big-label">Total Courses</div>
+    </div>
+    <div class="stat-big">
+      <div class="stat-big-num">{{ stats.total_universities }}</div>
+      <div class="stat-big-label">Universities</div>
+    </div>
+    <div class="stat-big">
+      <div class="stat-big-num">{{ stats.avg_rating }}</div>
+      <div class="stat-big-label">Avg Rating / 5</div>
+    </div>
+    <div class="stat-big">
+      <div class="stat-big-num">3</div>
+      <div class="stat-big-label">Difficulty Levels</div>
+    </div>
+  </div>
+
+  <div class="chart-card" style="margin-top:1.5rem;">
+    <h3>📚 Courses by Difficulty Level</h3>
+    <div class="diff-breakdown">
+      {% for level, count in stats.difficulty_counts.items %}
+      <div class="diff-row">
+        {% if level == 'Beginner' %}
+          <span class="diff-row-label badge badge-beginner">{{ level }}</span>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#10b981;max-width:100%;"></div></div>
+        {% elif level == 'Intermediate' %}
+          <span class="diff-row-label badge badge-intermediate">{{ level }}</span>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#f59e0b;max-width:100%;"></div></div>
+        {% elif level == 'Advanced' %}
+          <span class="diff-row-label badge badge-advanced">{{ level }}</span>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#ef4444;max-width:100%;"></div></div>
+        {% else %}
+          <span class="diff-row-label badge badge-mixed">{{ level }}</span>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#6366f1;max-width:100%;"></div></div>
+        {% endif %}
+        <span class="diff-row-count">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <div class="analytics-grid">
+    <div class="chart-card">
+      <h3>🥧 Difficulty Distribution</h3>
+      <img src="data:image/png;base64,{{ diff_chart }}" class="chart-img" alt="Difficulty Distribution">
+    </div>
+    <div class="chart-card">
+      <h3>⭐ Rating Distribution</h3>
+      <img src="data:image/png;base64,{{ rating_chart }}" class="chart-img" alt="Rating Distribution">
+    </div>
+    <div class="chart-card">
+      <h3>🏛 Top Universities</h3>
+      <img src="data:image/png;base64,{{ uni_chart }}" class="chart-img" alt="Top Universities">
+    </div>
+    <div class="chart-card">
+      <h3>📈 Avg Rating by Difficulty</h3>
+      <img src="data:image/png;base64,{{ avg_chart }}" class="chart-img" alt="Avg Rating by Difficulty">
+    </div>
+  </div>
+</div>
+{% endblock %}
