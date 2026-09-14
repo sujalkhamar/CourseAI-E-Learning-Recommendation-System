@@ -37,7 +37,7 @@
   <h1 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">🔍 Explore Courses</h1>
   <p style="color:var(--text-muted);margin-bottom:1.5rem;">Browse all {{ total }} Coursera courses in the dataset.</p>
 
-  <form method="GET" action="/explore/">
+  <form method="GET" action="/explore/" id="explore-form">
     <div class="filter-bar">
       <div class="filter-group" style="flex:2;">
         <label>Search by name, university, or skill</label>
@@ -59,42 +59,43 @@
           <option value="name" {% if sort == 'name' %}selected{% endif %}>Name A–Z</option>
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Filter</button>
+      <button type="submit" class="btn btn-primary" id="filter-btn" style="display:none;">Filter</button>
     </div>
   </form>
 
-  <p class="results-count">Showing top 50 of <strong>{{ total }}</strong> matching courses</p>
-
-  <div class="courses-list">
-    {% for course in courses %}
-    <div class="course-row">
-      <div>
-        <div class="cr-name">{{ course.course_name }}</div>
-        <div class="cr-uni">🏛 {{ course.university }}</div>
-        <div class="cr-meta">
-          {% if course.difficulty == 'Beginner' %}
-            <span class="badge badge-beginner">{{ course.difficulty }}</span>
-          {% elif course.difficulty == 'Intermediate' %}
-            <span class="badge badge-intermediate">{{ course.difficulty }}</span>
-          {% elif course.difficulty == 'Advanced' %}
-            <span class="badge badge-advanced">{{ course.difficulty }}</span>
-          {% else %}
-            <span class="badge badge-mixed">{{ course.difficulty }}</span>
-          {% endif %}
-          <span class="stars">★ {{ course.rating|floatformat:1 }}</span>
-        </div>
-      </div>
-      <a href="{{ course.url }}" target="_blank" class="btn btn-outline" style="white-space:nowrap;font-size:0.82rem;">
-        View Course ↗
-      </a>
-    </div>
-    {% empty %}
-    <div class="card" style="text-align:center;padding:3rem;">
-      <div style="font-size:3rem;">🔍</div>
-      <h3 style="margin-top:1rem;">No courses found</h3>
-      <p style="color:var(--text-muted);">Try adjusting your filters.</p>
-    </div>
-    {% endfor %}
+  <div id="course-list-container">
+    {% include 'recommender/partials/course_list.html' %}
   </div>
 </div>
+
+<script>
+  const form = document.getElementById('explore-form');
+  let timeout = null;
+  form.addEventListener('input', () => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const qs = new URLSearchParams(new FormData(form)).toString();
+      fetch(`/explore/?${qs}`, {
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest'
+        }
+      })
+      .then(response => response.text())
+      .then(html => {
+        document.getElementById('course-list-container').innerHTML = html;
+      });
+    }, 300);
+  });
+
+  function toggleBookmark(name, url, btn) {
+    fetch('/bookmark/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({course_name: name, course_url: url})
+    }).then(r => r.json()).then(data => {
+      if(data.status === 'added') { btn.innerHTML = '🌟'; btn.style.transform = 'scale(1.2)'; setTimeout(()=>btn.style.transform='scale(1)',200); }
+      else { btn.innerHTML = '⭐'; }
+    });
+  }
+</script>
 {% endblock %}

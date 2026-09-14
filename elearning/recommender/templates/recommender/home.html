@@ -106,8 +106,7 @@
   <!-- Quick Recommend Form -->
   <div class="quick-form fade-up">
     <h2>🤖 Get Personalized Recommendations</h2>
-    <form action="/recommend/" method="POST">
-      {% csrf_token %}
+    <form action="/recommend/" method="GET">
       <div class="form-group">
         <label>Your Skills (comma-separated)</label>
         <div class="input-wrap">

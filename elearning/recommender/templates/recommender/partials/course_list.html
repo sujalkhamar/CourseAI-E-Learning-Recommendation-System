@@ -1,0 +1,36 @@
+<p class="results-count">Showing top 50 of <strong>{{ total }}</strong> matching courses</p>
+
+<div class="courses-list">
+  {% for course in courses %}
+  <div class="course-row">
+    <div>
+      <div class="cr-name">{{ course.course_name }}</div>
+      <div class="cr-uni">🏛 {{ course.university }}</div>
+      <div class="cr-meta">
+        {% if course.difficulty == 'Beginner' %}
+          <span class="badge badge-beginner">{{ course.difficulty }}</span>
+        {% elif course.difficulty == 'Intermediate' %}
+          <span class="badge badge-intermediate">{{ course.difficulty }}</span>
+        {% elif course.difficulty == 'Advanced' %}
+          <span class="badge badge-advanced">{{ course.difficulty }}</span>
+        {% else %}
+          <span class="badge badge-mixed">{{ course.difficulty }}</span>
+        {% endif %}
+        <span class="stars">★ {{ course.rating|floatformat:1 }}</span>
+      </div>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0.5rem; align-items:flex-end;">
+      <button onclick="toggleBookmark('{{ course.course_name|escapejs }}', '{{ course.url|escapejs }}', this)" style="background:none;border:none;cursor:pointer;font-size:1.5rem;transition:transform 0.2s;" title="Save Course">⭐</button>
+      <a href="{{ course.url }}" target="_blank" class="btn btn-outline" style="white-space:nowrap;font-size:0.82rem;">
+        View Course ↗
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <div style="font-size:3rem;">🔍</div>
+    <h3 style="margin-top:1rem;">No courses found</h3>
+    <p style="color:var(--text-muted);">Try adjusting your filters.</p>
+  </div>
+  {% endfor %}
+</div>

@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,157 +13,7 @@
       document.documentElement.setAttribute('data-theme', savedTheme);
     })();
   </script>
-  <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    :root {
-      /* default light */
-      --bg: #f8fafc; --bg2: #f1f5f9; --bg3: #e2e8f0; --border: #e2e8f0;
-      --primary: #3b82f6; --primary-light: #60a5fa; --accent: #2563eb; --accent2: #1d4ed8;
-      --text: #0f172a; --text-muted: #64748b; --success: #10b981; --warning: #f59e0b;
-      --card: #ffffff; --radius: 14px;
-      /* Dynamic UI Colors */
-      --nav-bg: rgba(255,255,255,0.95);
-      --primary-glow: rgba(59,130,246,0.4); --primary-bg: rgba(59,130,246,0.1);
-      --primary-border: rgba(59,130,246,0.2); --primary-bg-strong: rgba(59,130,246,0.15);
-      --shadow-color: rgba(0,0,0,0.1);
-      --header-grad-1: rgba(59,130,246,0.12); --header-grad-2: rgba(37,99,235,0.08);
-      --hero-glow: rgba(59,130,246,0.12);
-      /* Badges */
-      --badge-beg-bg: rgba(16,185,129,0.15); --badge-beg-text: #059669;
-      --badge-int-bg: rgba(245,158,11,0.15); --badge-int-text: #d97706;
-      --badge-adv-bg: rgba(239,68,68,0.15); --badge-adv-text: #dc2626;
-      --badge-mix-bg: rgba(59,130,246,0.15); --badge-mix-text: #2563eb;
-      /* Analytics Charts */
-      --chart-beg: #059669; --chart-int: #d97706; --chart-adv: #dc2626; --chart-mix: #2563eb;
-    }
-    [data-theme="dark"] {
-      --bg: #0f172a; --bg2: #1e293b; --bg3: #334155; --border: #334155;
-      --primary: #6366f1; --primary-light: #818cf8; --accent: #8b5cf6; --accent2: #a78bfa;
-      --text: #e2e8f0; --text-muted: #94a3b8; --card: #1e293b;
-      --nav-bg: rgba(15,23,42,0.95);
-      --primary-glow: rgba(99,102,241,0.4); --primary-bg: rgba(99,102,241,0.1);
-      --primary-border: rgba(99,102,241,0.2); --primary-bg-strong: rgba(99,102,241,0.15);
-      --shadow-color: rgba(0,0,0,0.4);
-      --header-grad-1: rgba(99,102,241,0.12); --header-grad-2: rgba(139,92,246,0.08);
-      --hero-glow: rgba(99,102,241,0.12);
-      --badge-beg-text: #34d399; --badge-int-text: #fbbf24; --badge-adv-text: #f87171;
-      --badge-mix-bg: rgba(99,102,241,0.15); --badge-mix-text: #818cf8;
-      --chart-beg: #10b981; --chart-int: #f59e0b; --chart-adv: #ef4444; --chart-mix: #6366f1;
-    }
-    [data-theme="forest"] {
-      --bg: #064e3b; --bg2: #022c22; --bg3: #065f46; --border: #065f46;
-      --primary: #10b981; --primary-light: #34d399; --accent: #059669; --accent2: #047857;
-      --text: #ecfdf5; --text-muted: #a7f3d0; --card: #022c22;
-      --nav-bg: rgba(6,78,59,0.95);
-      --primary-glow: rgba(16,185,129,0.4); --primary-bg: rgba(16,185,129,0.1);
-      --primary-border: rgba(16,185,129,0.2); --primary-bg-strong: rgba(16,185,129,0.15);
-      --shadow-color: rgba(0,0,0,0.4);
-      --header-grad-1: rgba(16,185,129,0.12); --header-grad-2: rgba(5,150,105,0.08);
-      --hero-glow: rgba(16,185,129,0.12);
-      --badge-beg-text: #6ee7b7; --badge-int-text: #fcd34d; --badge-adv-text: #fca5a5;
-      --badge-mix-bg: rgba(16,185,129,0.15); --badge-mix-text: #34d399;
-      --chart-beg: #34d399; --chart-int: #fbbf24; --chart-adv: #f87171; --chart-mix: #10b981;
-    }
-    [data-theme="ocean"] {
-      --bg: #082f49; --bg2: #0c4a6e; --bg3: #0369a1; --border: #0369a1;
-      --primary: #0ea5e9; --primary-light: #38bdf8; --accent: #0284c7; --accent2: #0369a1;
-      --text: #f0f9ff; --text-muted: #bae6fd; --card: #0c4a6e;
-      --nav-bg: rgba(8,47,73,0.95);
-      --primary-glow: rgba(14,165,233,0.4); --primary-bg: rgba(14,165,233,0.1);
-      --primary-border: rgba(14,165,233,0.2); --primary-bg-strong: rgba(14,165,233,0.15);
-      --shadow-color: rgba(0,0,0,0.4);
-      --header-grad-1: rgba(14,165,233,0.12); --header-grad-2: rgba(2,132,199,0.08);
-      --hero-glow: rgba(14,165,233,0.12);
-      --badge-beg-text: #6ee7b7; --badge-int-text: #fcd34d; --badge-adv-text: #fca5a5;
-      --badge-mix-bg: rgba(14,165,233,0.15); --badge-mix-text: #38bdf8;
-      --chart-beg: #34d399; --chart-int: #fbbf24; --chart-adv: #f87171; --chart-mix: #0ea5e9;
-    }
-    body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
-
-    nav {
-      background: var(--nav-bg);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 100;
-      padding: 0 2rem;
-    }
-    .nav-inner {
-      max-width: 1200px; margin: 0 auto;
-      display: flex; align-items: center; justify-content: space-between;
-      height: 64px;
-    }
-    .nav-brand {
-      font-size: 1.3rem; font-weight: 800;
-      background: linear-gradient(135deg, var(--primary), var(--accent2));
-      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-      text-decoration: none;
-    }
-    .nav-links { display: flex; gap: 0.5rem; }
-    .nav-links a {
-      color: var(--text-muted); text-decoration: none;
-      padding: 0.45rem 1rem; border-radius: 8px;
-      font-size: 0.9rem; font-weight: 500;
-      transition: all 0.2s;
-    }
-    .nav-links a:hover, .nav-links a.active {
-      color: var(--text); background: var(--bg2);
-    }
-    .nav-links a.active { color: var(--primary-light); }
-
-    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
-
-    .card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 1.5rem;
-    }
-    .btn {
-      display: inline-flex; align-items: center; gap: 0.5rem;
-      padding: 0.65rem 1.5rem; border-radius: 10px;
-      font-size: 0.95rem; font-weight: 600; cursor: pointer;
-      border: none; text-decoration: none; transition: all 0.2s;
-    }
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary), var(--accent));
-      color: white;
-    }
-    .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); box-shadow: 0 4px 20px var(--primary-glow); }
-    .btn-outline {
-      background: transparent; color: var(--text);
-      border: 1px solid var(--border);
-    }
-    .btn-outline:hover { background: var(--bg2); }
-
-    .badge {
-      display: inline-block; padding: 0.25rem 0.65rem;
-      border-radius: 999px; font-size: 0.75rem; font-weight: 600;
-    }
-    .badge-beginner { background: var(--badge-beg-bg); color: var(--badge-beg-text); }
-    .badge-intermediate { background: var(--badge-int-bg); color: var(--badge-int-text); }
-    .badge-advanced { background: var(--badge-adv-bg); color: var(--badge-adv-text); }
-    .badge-mixed { background: var(--badge-mix-bg); color: var(--badge-mix-text); }
-
-    .stars { color: #fbbf24; font-size: 0.85rem; }
-    .rating-num { color: var(--text-muted); font-size: 0.8rem; }
-
-    footer {
-      border-top: 1px solid var(--border); padding: 2rem;
-      text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 4rem;
-    }
-
-    .tag {
-      display: inline-block; padding: 0.2rem 0.6rem;
-      background: var(--primary-bg); border: 1px solid var(--primary-border);
-      border-radius: 6px; font-size: 0.75rem; color: var(--accent);
-      cursor: pointer; transition: all 0.15s;
-    }
-    .tag:hover { background: var(--primary-border); }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    .fade-up { animation: fadeUp 0.4s ease forwards; }
-  </style>
+  <link rel="stylesheet" href="{% static 'recommender/css/styles.css' %}">
   {% block extra_head %}{% endblock %}
 </head>
 <body>
@@ -173,6 +24,7 @@
       <a href="/" {% if request.resolver_match.url_name == 'home' %}class="active"{% endif %}>Home</a>
       <a href="/recommend/" {% if request.resolver_match.url_name == 'recommend' %}class="active"{% endif %}>Recommend</a>
       <a href="/explore/" {% if request.resolver_match.url_name == 'explore' %}class="active"{% endif %}>Explore</a>
+      <a href="/my-courses/" {% if request.resolver_match.url_name == 'my_courses' %}class="active"{% endif %}>My Courses</a>
       <a href="/analytics/" {% if request.resolver_match.url_name == 'analytics' %}class="active"{% endif %}>Analytics</a>
       <select id="theme-selector" style="margin-left:1rem; padding:0.3rem 0.5rem; border-radius:6px; border:1px solid var(--border); background:var(--bg2); color:var(--text); outline:none; font-size:0.85rem; cursor:pointer;">
         <option value="light">Light</option>
@@ -200,6 +52,17 @@
         localStorage.setItem('courseai_theme', newTheme);
       });
     }
+  });
+
+  document.querySelectorAll('form').forEach(form => {
+    form.addEventListener('submit', function() {
+      const btn = form.querySelector('button[type="submit"]');
+      if(btn && !btn.classList.contains('loading')) {
+        btn.dataset.original = btn.innerHTML;
+        btn.innerHTML = '🤖 AI is Thinking <span class="spinner"></span>';
+        btn.classList.add('loading');
+      }
+    });
   });
 </script>
 </body>

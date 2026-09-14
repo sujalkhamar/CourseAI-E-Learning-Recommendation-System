@@ -29,6 +29,9 @@ def load_data():
     df['rating'] = pd.to_numeric(df['rating'], errors='coerce')
     df['rating'] = df['rating'].fillna(df['rating'].mean())
     df['normalized_rating'] = df['rating'] / 5.0
+    
+    import urllib.parse
+    df['url'] = df['course_name'].apply(lambda x: "https://www.coursera.org/search?query=" + urllib.parse.quote_plus(str(x)))
 
     def preprocess_skills(skill):
         if isinstance(skill, str):

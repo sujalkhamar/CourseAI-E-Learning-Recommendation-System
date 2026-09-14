@@ -1,0 +1,26 @@
+{% extends 'recommender/base.html' %}
+{% block title %}My Courses – CourseAI{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;">
+  <h1 style="font-size:2rem;font-weight:800;margin-bottom:0.5rem;">⭐ My Saved Courses</h1>
+  <p style="color:var(--text-muted);margin-bottom:2rem;">Your bookmarked recommendations.</p>
+
+  {% if bookmarks %}
+  <div style="display:grid;gap:1.2rem;">
+    {% for course in bookmarks %}
+    <div class="card">
+      <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.5rem;">{{ course.name }}</div>
+      <a href="https://www.coursera.org/search?query={{ course.name|urlencode }}" target="_blank" class="btn btn-primary" style="margin-top:1rem;">View on Coursera</a>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="card" style="text-align:center;padding:3rem;">
+    <div style="font-size:3rem;margin-bottom:1rem;">📂</div>
+    <h3>No saved courses yet</h3>
+    <p style="color:var(--text-muted);margin-top:0.5rem;">Use the recommend feature to find and save courses.</p>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}
