@@ -4,7 +4,7 @@
 {% block extra_head %}
 <style>
   .results-header {
-    background: linear-gradient(135deg, rgba(99,102,241,0.12), rgba(139,92,246,0.08));
+    background: linear-gradient(135deg, var(--header-grad-1), var(--header-grad-2));
     border: 1px solid var(--border); border-radius: 18px;
     padding: 2rem; margin-bottom: 2rem;
   }
@@ -42,8 +42,8 @@
   .skill-pills { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .skill-pill {
     font-size: 0.7rem; padding: 0.15rem 0.5rem;
-    background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.15);
-    border-radius: 999px; color: var(--primary-light);
+    background: var(--primary-bg); border: 1px solid var(--primary-bg-strong);
+    border-radius: 999px; color: var(--primary);
   }
   .rank-badge {
     min-width: 2rem; height: 2rem; border-radius: 50%;
@@ -71,7 +71,7 @@
     <p>Based on your skills &bull; Difficulty: <strong>{{ difficulty }}</strong></p>
     <div class="skills-list">
       {% for skill in user_skills %}
-      <span class="badge" style="background:rgba(99,102,241,0.15);color:#818cf8;">{{ skill }}</span>
+      <span class="badge" style="background:var(--primary-bg-strong);color:var(--primary);">{{ skill }}</span>
       {% endfor %}
     </div>
   </div>

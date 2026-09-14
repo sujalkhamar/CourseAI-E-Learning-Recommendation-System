@@ -15,7 +15,7 @@
   .chart-img { width: 100%; border-radius: 10px; }
   .stats-big { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
   .stat-big { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 1.5rem; text-align: center; }
-  .stat-big-num { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, #6366f1, #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .stat-big-num { font-size: 2.2rem; font-weight: 800; background: linear-gradient(135deg, var(--primary), var(--accent2)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
   .stat-big-label { font-size: 0.82rem; color: var(--text-muted); margin-top: 0.3rem; }
   .diff-breakdown { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1rem; }
   .diff-row { display: flex; align-items: center; gap: 0.8rem; }
@@ -57,16 +57,16 @@
       <div class="diff-row">
         {% if level == 'Beginner' %}
           <span class="diff-row-label badge badge-beginner">{{ level }}</span>
-          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#10b981;max-width:100%;"></div></div>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:var(--chart-beg);max-width:100%;"></div></div>
         {% elif level == 'Intermediate' %}
           <span class="diff-row-label badge badge-intermediate">{{ level }}</span>
-          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#f59e0b;max-width:100%;"></div></div>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:var(--chart-int);max-width:100%;"></div></div>
         {% elif level == 'Advanced' %}
           <span class="diff-row-label badge badge-advanced">{{ level }}</span>
-          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#ef4444;max-width:100%;"></div></div>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:var(--chart-adv);max-width:100%;"></div></div>
         {% else %}
           <span class="diff-row-label badge badge-mixed">{{ level }}</span>
-          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:#6366f1;max-width:100%;"></div></div>
+          <div class="diff-row-bar"><div class="diff-row-fill" style="width:{{ count }}%;background:var(--chart-mix);max-width:100%;"></div></div>
         {% endif %}
         <span class="diff-row-count">{{ count }}</span>
       </div>
